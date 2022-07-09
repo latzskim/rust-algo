@@ -84,12 +84,12 @@ impl<T> LinkedList<T> {
     }
 
     pub fn remove_at(&mut self, index: usize) -> Result<T, LinkedListError> {
-        if index > self.len {
-            return Err(LinkedListError::IndexError(index));
-        }
-
         if self.len == 0 {
             return Err(LinkedListError::Empty);
+        }
+
+        if index >= self.len {
+            return Err(LinkedListError::IndexError(index));
         }
 
         self.len -= 1;
@@ -115,23 +115,26 @@ impl<T> LinkedList<T> {
 
     pub fn pop(&mut self) -> Result<T, LinkedListError> {
         if self.len == 0 {
-            return self.remove_at(self.len);
+            return Err(LinkedListError::Empty);
         }
         self.remove_at(self.len - 1)
     }
 
     pub fn get_at(&self, index: usize) -> Result<&T, LinkedListError> {
+        if index >= self.len {
+            return Err(LinkedListError::IndexError(index));
+        }
+
         let mut elem_iter = self.head.as_ref();
 
         for _ in 0..index {
-            elem_iter = elem_iter.map(|n| n.next.as_ref()).unwrap()
+            elem_iter = elem_iter.map(|n| n.next.as_ref()).unwrap();
         }
 
-        if let Some(n) = elem_iter {
-            return Ok(&n.value);
+        match elem_iter {
+            Some(n) => Ok(&n.value),
+            None => Err(LinkedListError::Empty),
         }
-
-        Err(LinkedListError::Empty)
     }
 }
 
@@ -277,6 +280,18 @@ mod tests {
     }
 
     #[test]
+    fn remove_at_len_index_out_of_range() {
+        let mut list = LinkedList::new();
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        let res = list.remove_at(list.len);
+        assert_eq!(res.is_err(), true);
+        assert_eq!(res.unwrap_err(), LinkedListError::IndexError(list.len));
+    }
+
+    #[test]
     fn remove_from_empty() {
         let mut list: LinkedList<i32> = LinkedList::new();
         let res = list.pop();
@@ -297,7 +312,6 @@ mod tests {
 
     #[test]
     fn get_at_head_and_tail() {
-        // TODO: make test pass
         let mut list = LinkedList::new();
 
         list.push(1);
@@ -307,7 +321,44 @@ mod tests {
         let res = list.get_at(0);
         assert_eq!(res, Ok(&1));
 
-        let res = list.get_at(list.len);
+        let res = list.get_at(list.len - 1);
         assert_eq!(res, Ok(&3));
+    }
+
+    #[test]
+    fn get_element_at_index_out_of_range() {
+        let list: LinkedList<i32> = LinkedList::new();
+
+        let res = list.get_at(100);
+        assert_eq!(res.is_err(), true);
+        assert_eq!(res.unwrap_err(), LinkedListError::IndexError(100));
+    }
+
+    #[test]
+    fn get_at_len_index_out_of_range() {
+        let mut list = LinkedList::new();
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        let res = list.get_at(list.len);
+        assert_eq!(res.is_err(), true);
+        assert_eq!(res.unwrap_err(), LinkedListError::IndexError(list.len));
+    }
+
+    #[test]
+    fn display_trait_list() {
+        let mut list = LinkedList::new();
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        assert_eq!(format!("{}", list), "1 -> 2 -> 3");
+    }
+
+    #[test]
+    fn display_empty_list() {
+        let list: LinkedList<i32> = LinkedList::new();
+        assert_eq!(format!("{}", list), "");
     }
 }

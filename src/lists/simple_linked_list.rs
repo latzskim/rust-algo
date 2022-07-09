@@ -75,12 +75,14 @@ impl<T> LinkedList<T> {
             iter_node = iter_node.map(|n| n.next.as_mut()).unwrap();
         }
 
-        iter_node
-            .map(|n| {
-                new_node.next = n.next.take();
-                n.next = Some(Box::new(*new_node));
-            })
-            .ok_or_else(|| LinkedListError::Unknown)
+        match iter_node {
+            Some(node) => {
+                new_node.next = node.next.take();
+                node.next = Some(new_node);
+                Ok(())
+            }
+            None => Err(LinkedListError::Unknown),
+        }
     }
 
     pub fn remove_at(&mut self, index: usize) -> Result<T, LinkedListError> {
@@ -106,11 +108,13 @@ impl<T> LinkedList<T> {
             iter_element = iter_element.map(|n| n.next.as_mut()).unwrap();
         }
 
-        let element_before = iter_element.unwrap();
-        let elem_to_remove = element_before.next.take().unwrap();
-        element_before.next = elem_to_remove.next;
+        if let Some(element_before) = iter_element {
+            let elem_to_remove = element_before.next.take().unwrap();
+            element_before.next = elem_to_remove.next;
+            return Ok(elem_to_remove.value);
+        }
 
-        Ok(elem_to_remove.value)
+        Err(LinkedListError::Unknown)
     }
 
     pub fn pop(&mut self) -> Result<T, LinkedListError> {
@@ -169,7 +173,7 @@ mod tests {
 
     #[test]
     fn add_at() {
-        let mut list: LinkedList<i32> = LinkedList::new();
+        let mut list = LinkedList::new();
 
         let res = list.add_at(0, 31);
         assert_eq!(res.is_ok(), true);
@@ -301,7 +305,7 @@ mod tests {
 
     #[test]
     fn get_at() {
-        let mut list: LinkedList<i32> = LinkedList::new();
+        let mut list = LinkedList::new();
         list.push(1);
         list.push(2);
         list.push(3);

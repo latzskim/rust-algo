@@ -1,5 +1,17 @@
 use std::fmt::{Debug, Display};
 
+#[derive(Debug, PartialEq)]
+struct Node<T> {
+    next: Option<Box<Node<T>>>,
+    value: T,
+}
+
+impl<T> Node<T> {
+    fn new(value: T) -> Self {
+        Node { next: None, value }
+    }
+}
+
 pub struct LinkedList<T> {
     head: Option<Box<Node<T>>>,
     len: usize,
@@ -12,17 +24,6 @@ pub enum LinkedListError {
     Unknown,
 }
 
-#[derive(Debug, PartialEq)]
-struct Node<T> {
-    next: Option<Box<Node<T>>>,
-    value: T,
-}
-
-impl<T> Node<T> {
-    fn new(value: T) -> Self {
-        Node { next: None, value }
-    }
-}
 
 impl<T> Display for LinkedList<T>
 where

@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug, PartialEq)]
 struct Node<T> {
-    next: Rc<RefCell<Option<Box<Node<T>>>>>,
+    next: Rc<RefCell<Option<Node<T>>>>,
     value: T,
 }
 
@@ -16,8 +16,8 @@ impl<T> Node<T> {
 }
 
 pub struct Fifo<T> {
-    head: Rc<RefCell<Option<Box<Node<T>>>>>,
-    tail: Rc<RefCell<Option<Box<Node<T>>>>>,
+    head: Rc<RefCell<Option<Node<T>>>>,
+    tail: Rc<RefCell<Option<Node<T>>>>,
     len: usize,
 }
 
@@ -31,7 +31,7 @@ impl<T> Fifo<T> {
     }
 
     fn push(&mut self, value: T) {
-        let new_node = Rc::new(RefCell::new(Some(Box::new(Node::new(value)))));
+        let new_node = Rc::new(RefCell::new(Some(Node::new(value))));
         if self.tail.borrow().is_some() {
             self.tail.borrow_mut().as_mut().unwrap().next = Rc::clone(&new_node);
             self.tail = Rc::clone(&new_node);

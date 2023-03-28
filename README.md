@@ -5,6 +5,7 @@ Simple data structures and algorithms written in Rust. I've finished [The Book](
 ## Data structures
 1. [Simple LinkedList](https://github.com/latzskim/rust-algo/blob/main/src/lists/simple_linked_list.rs)
 2. [Fifo](https://github.com/latzskim/rust-algo/blob/main/src/lists/fifo.rs)
+3. [Ring Buffer](https://github.com/latzskim/rust-algo/blob/main/src/lists/ring_buffer.rs)
 
 ## Sorting algorithms
 1. [Quick Sort](https://github.com/latzskim/rust-algo/blob/main/src/sorting/quicksort.rs)
